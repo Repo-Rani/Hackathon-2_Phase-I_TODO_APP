@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/yourusername/todo-console-app/schemas/tasks.json",
+  "title": "Todo Console App Task Storage",
+  "description": "JSON schema for the tasks.json file used by Todo Console App for persistent storage",
+  "type": "object",
+  "required": ["tasks", "next_id"],
+  "properties": {
+    "tasks": {
+      "type": "array",
+      "description": "Array of task objects",
+      "items": {
+        "$ref": "#/definitions/task"
+      },
+      "default": []
+    },
+    "next_id": {
+      "type": "integer",
+      "description": "Counter for the next task ID to be assigned",
+      "minimum": 1,
+      "default": 1
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "task": {
+      "type": "object",
+      "description": "A single todo task item",
+      "required": ["id", "title", "description", "completed", "created_at"],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique sequential identifier for the task",
+          "minimum": 1
+        },
+        "title": {
+          "type": "string",
+          "description": "Task title (required, 1-200 characters, must contain non-whitespace)",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": ".*\\S.*"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional task description (0-1000 characters)",
+          "minLength": 0,
+          "maxLength": 1000,
+          "default": ""
+        },
+        "completed": {
+          "type": "boolean",
+          "description": "Completion status of the task",
+          "default": false
+        },
+        "created_at": {
+          "type": "string",
+          "description": "ISO 8601 datetime string representing when the task was created",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?$"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "tasks": [
+        {
+          "id": 1,
+          "title": "Buy groceries",
+          "description": "Milk, eggs, bread",
+          "completed": false,
+          "created_at": "2026-01-01T14:30:00.123456"
+        },
+        {
+          "id": 2,
+          "title": "Write documentation",
+          "description": "",
+          "completed": true,
+          "created_at": "2026-01-01T15:45:00.789012"
+        }
+      ],
+      "next_id": 3
+    },
+    {
+      "tasks": [],
+      "next_id": 1
+    }
+  ]
+}
