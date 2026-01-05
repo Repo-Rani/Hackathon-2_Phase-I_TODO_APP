@@ -12,10 +12,7 @@ try:
         show_success, show_error, show_info, console, show_welcome_animation,
         show_loading, show_confirmation_dialog, show_status_bar
     )
-<<<<<<< HEAD
     from .storage import validate_session_code
-=======
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
 except ImportError:
     from todo_manager import TodoManager
     from ui import (
@@ -23,12 +20,7 @@ except ImportError:
         show_success, show_error, show_info, console, show_welcome_animation,
         show_loading, show_confirmation_dialog, show_status_bar
     )
-<<<<<<< HEAD
     from storage import validate_session_code
-=======
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
-
-    
 
 
 def get_user_choice() -> str:
@@ -311,7 +303,6 @@ def handle_mark_complete(todo_manager: TodoManager) -> None:
     input("\nPress Enter to continue...")
 
 
-<<<<<<< HEAD
 def handle_session_command(todo_manager: TodoManager, full_command: str) -> bool:
     """
     Handle session-related commands (stop, start, sessions).
@@ -487,8 +478,6 @@ def check_existing_sessions(todo_manager: TodoManager) -> None:
                 input("Press Enter to continue...")
 
 
-=======
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
 def main() -> None:
     """Main entry point for the Todo Console App."""
     # Show enhanced welcome animation
@@ -497,12 +486,9 @@ def main() -> None:
     # Initialize the todo manager
     todo_manager = TodoManager()
 
-<<<<<<< HEAD
     # Check for existing sessions and prompt user
     check_existing_sessions(todo_manager)
 
-=======
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
     while True:
         # Show header and menu with stats
         console.clear()
@@ -510,7 +496,6 @@ def main() -> None:
         stats = todo_manager.get_stats()
         show_menu(stats)
 
-<<<<<<< HEAD
         # Get user input - could be menu choice or session command
         try:
             user_input = input("\nEnter your choice (1-6) or session command (stop/start/sessions): ").strip()
@@ -534,32 +519,13 @@ def main() -> None:
         elif user_input == '5':
             handle_mark_complete(todo_manager)
         elif user_input == '6':
-=======
-        choice = get_user_choice()
-
-        if choice == '1':
-            handle_add_task(todo_manager)
-        elif choice == '2':
-            handle_view_tasks(todo_manager)
-        elif choice == '3':
-            handle_update_task(todo_manager)
-        elif choice == '4':
-            handle_delete_task(todo_manager)
-        elif choice == '5':
-            handle_mark_complete(todo_manager)
-        elif choice == '6':
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
             console.clear()
             show_header()
             show_success("Thank you for using the Todo Console App!")
             console.print("[dim]Goodbye! ✨[/dim]\n")
             break
         else:
-<<<<<<< HEAD
             show_error(f"Invalid choice: '{user_input}'. Please enter a number between 1-6 or use session commands (stop/start/sessions).")
-=======
-            show_error(f"Invalid choice: '{choice}'. Please enter a number between 1-6.")
->>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
             input("Press Enter to continue...")
 
 
