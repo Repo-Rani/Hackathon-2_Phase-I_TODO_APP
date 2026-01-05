@@ -9,10 +9,10 @@ from datetime import datetime
 from typing import List, Optional
 try:
     from .models import Task
-    from .storage import JSONStorage
+    from .storage import JSONStorage, SessionStorage, SessionData, SessionMetadata, validate_session_code
 except ImportError:
     from models import Task
-    from storage import JSONStorage
+    from storage import JSONStorage, SessionStorage, SessionData, SessionMetadata, validate_session_code
 
 
 class TodoManager:
@@ -35,11 +35,15 @@ class TodoManager:
         Side Effects:
             - Creates JSONStorage instance
             - Loads existing tasks from file
-            - Initializes empty state if file doesn'''t exist
+            - Initializes empty state if file doesn't exist
         """
         self.storage = JSONStorage(storage_path)
+        self.session_storage = SessionStorage()
         self.tasks: List[Task] = []
         self.next_id: int = 1
+        self.current_session_code: Optional[str] = None
+        self.last_activity: str = "Started application"
+        self.phase_of_work: str = "Active"
         self._load_from_storage()
 
     def _load_from_storage(self) -> None:
@@ -219,3 +223,143 @@ class TodoManager:
             Sanitized text
         """
         return text
+
+    def save_current_state(self, session_code: str, last_activity: str = "") -> bool:
+        """
+        Save the current application state to a session.
+
+        Args:
+            session_code: The session code to save to
+            last_activity: Description of the last activity performed
+
+        Returns:
+            True if save was successful, False otherwise
+        """
+        # Validate session code
+        is_valid, error_msg = validate_session_code(session_code)
+        if not is_valid:
+            print(f"Error: {error_msg}")
+            return False
+
+        # Create session data from current state
+        session_data = SessionData(
+            session_code=session_code,
+            created_at=datetime.now(),
+            last_modified=datetime.now(),
+            last_activity=last_activity or self.last_activity,
+            phase_of_work=self.phase_of_work,
+            next_id=self.next_id,
+            tasks=self.tasks[:]
+        )
+
+        # Save to storage
+        success = self.session_storage.save_session(session_data)
+        if success:
+            self.current_session_code = session_code
+            self.last_activity = f"Saved session {session_code}"
+            print(f"[SUCCESS] Session '{session_code}' saved successfully")
+
+        return success
+
+    def load_session_state(self, session_code: str) -> bool:
+        """
+        Load a saved application state from a session.
+
+        Args:
+            session_code: The session code to load
+
+        Returns:
+            True if load was successful, False otherwise
+        """
+        # Load from storage
+        session_data = self.session_storage.load_session(session_code)
+        if not session_data:
+            print(f"[ERROR] Session '{session_code}' not found")
+            return False
+
+        # Restore state from session data
+        self.tasks = session_data.tasks[:]
+        self.next_id = session_data.next_id
+        self.current_session_code = session_data.session_code
+        self.last_activity = f"Resumed session {session_code}"
+        self.phase_of_work = session_data.phase_of_work
+
+        print(f"[INFO] Resuming session '{session_code}' from {session_data.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Last activity: {session_data.last_activity}")
+
+        return True
+
+    def delete_session(self, session_code: str) -> bool:
+        """
+        Delete a saved session.
+
+        Args:
+            session_code: The session code to delete
+
+        Returns:
+            True if deletion was successful, False otherwise
+        """
+        success = self.session_storage.delete_session(session_code)
+        if success:
+            print(f"[DELETED] Session '{session_code}' deleted successfully")
+        else:
+            print(f"[ERROR] Could not delete session '{session_code}' - may not exist")
+
+        return success
+
+    def list_sessions(self, show_output: bool = True) -> List[SessionMetadata]:
+        """
+        List all available sessions.
+
+        Args:
+            show_output: Whether to print the list to console (default: True)
+
+        Returns:
+            List of SessionMetadata instances for all available sessions
+        """
+        sessions = self.session_storage.list_sessions()
+
+        if not sessions:
+            if show_output:
+                print("No saved sessions found")
+            return sessions
+
+        if show_output:
+            print("Available sessions:")
+            for session in sessions:
+                time_diff = datetime.now() - session.last_modified
+                days = time_diff.days
+                hours, remainder = divmod(time_diff.seconds, 3600)
+
+                time_ago = ""
+                if days > 0:
+                    time_ago = f"{days} day{'s' if days != 1 else ''} ago"
+                elif hours > 0:
+                    time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+                else:
+                    time_ago = "just now"
+
+                print(f"  {session.session_code} ({time_ago}) - {session.task_count} todos, last: {session.last_activity[:30]}{'...' if len(session.last_activity) > 30 else ''}")
+
+        return sessions
+
+    def session_info(self, session_code: str) -> None:
+        """
+        Show detailed information about a specific session.
+
+        Args:
+            session_code: The session code to get info for
+        """
+        sessions = [s for s in self.session_storage.list_sessions() if s.session_code == session_code]
+
+        if not sessions:
+            print(f"[ERROR] Session '{session_code}' not found")
+            return
+
+        session = sessions[0]
+        print(f"Session: {session.session_code}")
+        print(f"Created: {session.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Modified: {session.last_modified.strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"Task count: {session.task_count}")
+        print(f"Last activity: {session.last_activity}")
+        print(f"File: {session.file_path}")

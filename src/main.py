@@ -12,6 +12,7 @@ try:
         show_success, show_error, show_info, console, show_welcome_animation,
         show_loading, show_confirmation_dialog, show_status_bar
     )
+    from .storage import validate_session_code
 except ImportError:
     from todo_manager import TodoManager
     from ui import (
@@ -19,6 +20,7 @@ except ImportError:
         show_success, show_error, show_info, console, show_welcome_animation,
         show_loading, show_confirmation_dialog, show_status_bar
     )
+    from storage import validate_session_code
 
     
 
@@ -303,6 +305,181 @@ def handle_mark_complete(todo_manager: TodoManager) -> None:
     input("\nPress Enter to continue...")
 
 
+def handle_session_command(todo_manager: TodoManager, full_command: str) -> bool:
+    """
+    Handle session-related commands (stop, start, sessions).
+
+    Args:
+        todo_manager: The TodoManager instance to use
+        full_command: The full command string from user input
+
+    Returns:
+        True if the command was a session command, False otherwise
+    """
+    parts = full_command.strip().split()
+    if not parts:
+        return False
+
+    command = parts[0].lower()
+
+    # Handle "stop [session_code]" command
+    if command == 'stop':
+        if len(parts) < 2:
+            show_error("Please provide a session code. Usage: stop [session_code]")
+            input("Press Enter to continue...")
+            return True
+
+        session_code = parts[1]
+        is_valid, error_msg = validate_session_code(session_code)
+        if not is_valid:
+            show_error(error_msg)
+            input("Press Enter to continue...")
+            return True
+
+        # Save current state to session
+        success = todo_manager.save_current_state(session_code, f"Manual save with 'stop {session_code}' command")
+        if success:
+            show_success(f"Session '{session_code}' saved successfully")
+        else:
+            show_error(f"Failed to save session '{session_code}'")
+
+        input("Press Enter to continue...")
+        return True
+
+    # Handle "start [session_code]" command
+    elif command == 'start':
+        if len(parts) < 2:
+            show_error("Please provide a session code. Usage: start [session_code]")
+            input("Press Enter to continue...")
+            return True
+
+        session_code = parts[1]
+        is_valid, error_msg = validate_session_code(session_code)
+        if not is_valid:
+            show_error(error_msg)
+            input("Press Enter to continue...")
+            return True
+
+        # Load state from session
+        success = todo_manager.load_session_state(session_code)
+        if success:
+            show_success(f"Session '{session_code}' loaded successfully")
+        else:
+            show_error(f"Failed to load session '{session_code}' - may not exist")
+
+        input("Press Enter to continue...")
+        return True
+
+    # Handle "sessions [subcommand]" command
+    elif command == 'sessions':
+        if len(parts) < 2:
+            show_error("Please specify a subcommand. Usage: sessions [list|delete|info]")
+            input("Press Enter to continue...")
+            return True
+
+        subcommand = parts[1].lower()
+
+        if subcommand == 'list':
+            todo_manager.list_sessions()
+            input("Press Enter to continue...")
+            return True
+
+        elif subcommand == 'delete':
+            if len(parts) < 3:
+                show_error("Please provide a session code. Usage: sessions delete [session_code]")
+                input("Press Enter to continue...")
+                return True
+
+            session_code = parts[2]
+            is_valid, error_msg = validate_session_code(session_code)
+            if not is_valid:
+                show_error(error_msg)
+                input("Press Enter to continue...")
+                return True
+
+            # Use enhanced confirmation dialog
+            confirmation = show_confirmation_dialog(f"Are you sure you want to delete session '{session_code}'?")
+            if confirmation:
+                success = todo_manager.delete_session(session_code)
+                if success:
+                    show_success(f"Session '{session_code}' deleted successfully")
+                else:
+                    show_error(f"Failed to delete session '{session_code}'")
+            else:
+                show_info(f"Deletion cancelled. Session '{session_code}' preserved.")
+
+            input("Press Enter to continue...")
+            return True
+
+        elif subcommand == 'info':
+            if len(parts) < 3:
+                show_error("Please provide a session code. Usage: sessions info [session_code]")
+                input("Press Enter to continue...")
+                return True
+
+            session_code = parts[2]
+            is_valid, error_msg = validate_session_code(session_code)
+            if not is_valid:
+                show_error(error_msg)
+                input("Press Enter to continue...")
+                return True
+
+            todo_manager.session_info(session_code)
+            input("Press Enter to continue...")
+            return True
+
+        else:
+            show_error(f"Unknown sessions subcommand: {subcommand}. Use: list, delete, or info")
+            input("Press Enter to continue...")
+            return True
+
+    return False
+
+
+def check_existing_sessions(todo_manager: TodoManager) -> None:
+    """
+    Check if any sessions exist and prompt user to resume or start fresh.
+
+    Args:
+        todo_manager: The TodoManager instance to use
+    """
+    sessions = todo_manager.list_sessions(show_output=False)  # Get sessions without printing
+
+    if sessions:
+        console.print("\n[bold yellow]Saved sessions detected:[/bold yellow]")
+        for session in sessions:
+            time_diff = __import__('datetime').datetime.now() - session.last_modified
+            days = time_diff.days
+            hours, remainder = divmod(time_diff.seconds, 3600)
+
+            time_ago = ""
+            if days > 0:
+                time_ago = f"{days} day{'s' if days != 1 else ''} ago"
+            elif hours > 0:
+                time_ago = f"{hours} hour{'s' if hours != 1 else ''} ago"
+            else:
+                time_ago = "just now"
+
+            console.print(f"  • {session.session_code} ({time_ago}) - {session.task_count} todos")
+
+        console.print("\n[yellow]Would you like to resume a session or start fresh?[/yellow]")
+        choice = input("Enter session code to resume, or 'new' to start fresh: ").strip()
+
+        if choice.lower() != 'new' and choice:
+            is_valid, error_msg = validate_session_code(choice)
+            if is_valid:
+                success = todo_manager.load_session_state(choice)
+                if success:
+                    show_success(f"Session '{choice}' loaded successfully")
+                    input("Press Enter to continue...")
+                else:
+                    show_error(f"Failed to load session '{choice}' - may not exist")
+                    input("Press Enter to continue...")
+            else:
+                show_error(error_msg)
+                input("Press Enter to continue...")
+
+
 def main() -> None:
     """Main entry point for the Todo Console App."""
     # Show enhanced welcome animation
@@ -311,6 +488,9 @@ def main() -> None:
     # Initialize the todo manager
     todo_manager = TodoManager()
 
+    # Check for existing sessions and prompt user
+    check_existing_sessions(todo_manager)
+
     while True:
         # Show header and menu with stats
         console.clear()
@@ -318,26 +498,36 @@ def main() -> None:
         stats = todo_manager.get_stats()
         show_menu(stats)
 
-        choice = get_user_choice()
+        # Get user input - could be menu choice or session command
+        try:
+            user_input = input("\nEnter your choice (1-6) or session command (stop/start/sessions): ").strip()
+        except (EOFError, KeyboardInterrupt):
+            console.print("\n\nGoodbye!")
+            sys.exit(0)
 
-        if choice == '1':
+        # Handle session commands first
+        if handle_session_command(todo_manager, user_input):
+            continue  # Skip menu processing if it was a session command
+
+        # Handle traditional menu choices
+        if user_input == '1':
             handle_add_task(todo_manager)
-        elif choice == '2':
+        elif user_input == '2':
             handle_view_tasks(todo_manager)
-        elif choice == '3':
+        elif user_input == '3':
             handle_update_task(todo_manager)
-        elif choice == '4':
+        elif user_input == '4':
             handle_delete_task(todo_manager)
-        elif choice == '5':
+        elif user_input == '5':
             handle_mark_complete(todo_manager)
-        elif choice == '6':
+        elif user_input == '6':
             console.clear()
             show_header()
             show_success("Thank you for using the Todo Console App!")
             console.print("[dim]Goodbye! ✨[/dim]\n")
             break
         else:
-            show_error(f"Invalid choice: '{choice}'. Please enter a number between 1-6.")
+            show_error(f"Invalid choice: '{user_input}'. Please enter a number between 1-6 or use session commands (stop/start/sessions).")
             input("Press Enter to continue...")
 
 

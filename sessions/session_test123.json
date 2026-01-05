@@ -1,0 +1,45 @@
+{
+  "session_code": "test123",
+  "created_at": "2026-01-06T02:56:45.478227",
+  "last_modified": "2026-01-06T02:56:45.478231",
+  "last_activity": "Added test task",
+  "phase_of_work": "Active",
+  "next_id": 6,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Test Task",
+      "description": "",
+      "completed": true,
+      "created_at": "2026-01-01T23:28:06.275084"
+    },
+    {
+      "id": 2,
+      "title": "today going to uni",
+      "description": "",
+      "completed": false,
+      "created_at": "2026-01-01T23:32:40.808494"
+    },
+    {
+      "id": 3,
+      "title": "hi",
+      "description": "",
+      "completed": false,
+      "created_at": "2026-01-02T03:11:22.702436"
+    },
+    {
+      "id": 4,
+      "title": "Test Task",
+      "description": "This is a test task for session management",
+      "completed": false,
+      "created_at": "2026-01-06T02:53:25.453901"
+    },
+    {
+      "id": 5,
+      "title": "Test Task",
+      "description": "This is a test task for session management",
+      "completed": false,
+      "created_at": "2026-01-06T02:56:45.463894"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "session_code": "finaltest",
+  "created_at": "2026-01-06T03:10:25.540944",
+  "last_modified": "2026-01-06T03:10:25.540948",
+  "last_activity": "Added final test task",
+  "phase_of_work": "Active",
+  "next_id": 7,
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Test task from main app",
+      "description": "Testing session functionality",
+      "completed": false,
+      "created_at": "2026-01-06T03:04:07.641686"
+    },
+    {
+      "id": 2,
+      "title": "Task 1",
+      "description": "First test task",
+      "completed": true,
+      "created_at": "2026-01-06T03:07:17.608113"
+    },
+    {
+      "id": 3,
+      "title": "Task 2",
+      "description": "Second test task",
+      "completed": false,
+      "created_at": "2026-01-06T03:07:17.612001"
+    },
+    {
+      "id": 4,
+      "title": "Task 1",
+      "description": "First test task",
+      "completed": true,
+      "created_at": "2026-01-06T03:09:45.535844"
+    },
+    {
+      "id": 5,
+      "title": "Task 2",
+      "description": "Second test task",
+      "completed": false,
+      "created_at": "2026-01-06T03:09:45.543304"
+    },
+    {
+      "id": 6,
+      "title": "Final test task",
+      "description": "Testing final session functionality",
+      "completed": false,
+      "created_at": "2026-01-06T03:10:25.536992"
+    }
+  ]
+}
