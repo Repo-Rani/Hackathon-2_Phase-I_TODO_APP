@@ -1,18 +1,30 @@
 """
+<<<<<<< HEAD
 JSON storage handler for task persistence and session management.
 
 This module provides the JSONStorage class for saving and loading tasks
 to/from JSON files with backup and error handling, and the SessionStorage
 class for managing session state.
+=======
+JSON storage handler for task persistence.
+
+This module provides the JSONStorage class for saving and loading tasks
+to/from JSON files with backup and error handling.
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
 """
 
 import json
 import shutil
+<<<<<<< HEAD
 import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import os
+=======
+from pathlib import Path
+from typing import Dict, Any, List
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
 
 
 class JSONStorage:
@@ -140,6 +152,7 @@ class JSONStorage:
         except Exception as e:
             print(f"Error creating backup: {e}")
             return False
+<<<<<<< HEAD
 
 
 def validate_session_code(session_code: str) -> tuple[bool, str]:
@@ -437,3 +450,5 @@ class SessionStorage:
         """
         session_file = self.sessions_dir / f"session_{session_code}.json"
         return session_file.exists()
+=======
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be

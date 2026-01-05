@@ -9,10 +9,17 @@ from datetime import datetime
 from typing import List, Optional
 try:
     from .models import Task
+<<<<<<< HEAD
     from .storage import JSONStorage, SessionStorage, SessionData, SessionMetadata, validate_session_code
 except ImportError:
     from models import Task
     from storage import JSONStorage, SessionStorage, SessionData, SessionMetadata, validate_session_code
+=======
+    from .storage import JSONStorage
+except ImportError:
+    from models import Task
+    from storage import JSONStorage
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
 
 
 class TodoManager:
@@ -35,6 +42,7 @@ class TodoManager:
         Side Effects:
             - Creates JSONStorage instance
             - Loads existing tasks from file
+<<<<<<< HEAD
             - Initializes empty state if file doesn't exist
         """
         self.storage = JSONStorage(storage_path)
@@ -44,6 +52,13 @@ class TodoManager:
         self.current_session_code: Optional[str] = None
         self.last_activity: str = "Started application"
         self.phase_of_work: str = "Active"
+=======
+            - Initializes empty state if file doesn'''t exist
+        """
+        self.storage = JSONStorage(storage_path)
+        self.tasks: List[Task] = []
+        self.next_id: int = 1
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
         self._load_from_storage()
 
     def _load_from_storage(self) -> None:
@@ -223,6 +238,7 @@ class TodoManager:
             Sanitized text
         """
         return text
+<<<<<<< HEAD
 
     def save_current_state(self, session_code: str, last_activity: str = "") -> bool:
         """
@@ -363,3 +379,5 @@ class TodoManager:
         print(f"Task count: {session.task_count}")
         print(f"Last activity: {session.last_activity}")
         print(f"File: {session.file_path}")
+=======
+>>>>>>> 64c2e05b398b06a7b7369f7b6fd3d597cb1340be
