@@ -1,4 +1,4 @@
-# Claude Code Rules
+# Gemini CLI Rules
 
 This file is generated during init for the selected agent.
 
@@ -208,10 +208,3 @@ Wait for consent; never auto-create ADRs. Group related decisions (stacks, authe
 
 ## Code Standards
 See `.specify/memory/constitution.md` for code quality, testing, performance, security, and architecture principles.
-
-## Recent Changes
-- 001-add-task: Added [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
-
-## Active Technologies
-- Python 3.11 (Backend), TypeScript 5.0+ (Frontend) + FastAPI, Next.js 16, SQLModel, Better Auth, Tailwind CSS (004-phase2-specs-update)
-- Neon Serverless PostgreSQL (004-phase2-specs-update)
